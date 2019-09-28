@@ -1,21 +1,29 @@
 class NegociacaoController {
-
-    constructor () {
-
+    constructor() {
         let $ = document.querySelector.bind(document);
-        
-        this._inputData = $("#data");
-        this._inputQuantidade = $("#quantidade");
-        this._inputValor = $("#valor");
-        
-        this._listaNegociacoes = new ListaNegociacoes(() => {
-            this.negociacoesView.update(this._listaNegociacoes.negociacoes);
+        let self = this;
+
+        this._inputData = $('#data');
+        this._inputQuantidade = $('#quantidade');
+        this._inputValor = $('#valor');
+
+        this._listaNegociacoes = new Proxy(new ListaNegociacoes(), {
+            get(target, prop, receiver) {
+                if (['adiciona', 'esvazia'].includes(prop) && typeof(target[prop]) === typeof(Function)) {
+                    return function() {
+                        Reflect.apply(target[prop], target, arguments);
+                        self.negociacoesView.update(target._negociacoes);
+                    };
+                }
+
+                return Reflect.get(target, prop, receiver);
+            }
         });
 
-        this.negociacoesView = new NegociacoesView($(".table tbody"));
+        this.negociacoesView = new NegociacoesView($('.table tbody'));
         this.negociacoesView.update(this._listaNegociacoes.negociacoes);
-        
-        this.mensagemView = new MensagemView($(".mensagemView"));
+
+        this.mensagemView = new MensagemView($('.mensagemView'));
     }
 
     adiciona(event) {
@@ -24,13 +32,12 @@ class NegociacaoController {
         this._listaNegociacoes.adiciona(this._criaNegociacao());
 
         this._limpaFormulario();
-        
-        this.mensagemView.update("Negociação inserida com sucesso");
+
+        this.mensagemView.update('Negociação inserida com sucesso');
     }
 
     _limpaFormulario() {
-
-        this._inputData.value = "";
+        this._inputData.value = '';
         this._inputQuantidade.value = 1;
         this._inputValor.value = 0.0;
 
@@ -38,7 +45,6 @@ class NegociacaoController {
     }
 
     _criaNegociacao() {
-
         return new Negociacao(
             DataHelper.textoParaData(this._inputData.value),
             this._inputQuantidade.value,
@@ -47,9 +53,8 @@ class NegociacaoController {
     }
 
     _apaga() {
-
         this._listaNegociacoes.esvazia();
 
-        this.mensagemView.update("Negociações apagadas com sucesso.");
+        this.mensagemView.update('Negociações apagadas com sucesso.');
     }
 }
