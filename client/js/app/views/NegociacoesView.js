@@ -4,20 +4,39 @@ class NegociacoesView extends View {
         super(element);
     }
 
-    template(negociacoes) {
+    template(model) {
         return `
-            ${negociacoes.map(negociacao => `
+        <table class="table table-hover table-bordered">
+            <thead>
                 <tr>
-                    <td>${DataHelper.dataParaTexto(negociacao.data)}</td>
-                    <td>${negociacao.quantidade}</td>
-                    <td>${negociacao.valor}</td>
-                    <td>${negociacao.volume}</td>
+                    <th>DATA</th>
+                    <th>QUANTIDADE</th>
+                    <th>VALOR</th>
+                    <th>VOLUME</th>
                 </tr>
-            `).join('')}
-            <tr>
-                <td colspan='3'></td>
-                <td>${negociacoes.reduce((prev, curr) => prev + curr.volume, 0)}</td>
-            </tr>
+            </thead>
+        
+            <tbody>
+                ${model.negociacoes.map(n => `
+                    
+                    <tr>
+                        <td>${DataHelper.dataParaTexto(n.data)}</td>
+                        <td>${n.quantidade}</td>
+                        <td>${n.valor}</td>
+                        <td>${n.volume}</td>
+                    </tr>
+                    
+                `).join('')}                
+            </tbody>
+                  
+            <tfoot>
+                <td colspan="3"></td>
+                <td>
+                    ${model.volumeTotal}
+                </td>
+            </tfoot>
+            
+        </table>
         `;
     }
 }

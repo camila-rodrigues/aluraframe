@@ -7,41 +7,27 @@ class NegociacaoController {
         this._inputQuantidade = $('#quantidade');
         this._inputValor = $('#valor');
 
-        this._listaNegociacoes = new Proxy(new ListaNegociacoes(), {
-            get(target, prop, receiver) {
-                if (['adiciona', 'esvazia'].includes(prop) && typeof(target[prop]) === typeof(Function)) {
-                    return function() {
-                        Reflect.apply(target[prop], target, arguments);
-                        self.negociacoesView.update(target._negociacoes);
-                    };
-                }
+        this._listaNegociacoes = new Bind(
+            new ListaNegociacoes(),
+            new NegociacoesView($('#negociacoesView')),
+            'adiciona',
+            'esvazia'
+        );
 
-                return Reflect.get(target, prop, receiver);
-            }
-        });
-
-        this.negociacoesView = new NegociacoesView($('.table tbody'));
-        this.negociacoesView.update(this._listaNegociacoes.negociacoes);
-
-        this.mensagemView = new MensagemView($('.mensagemView'));
+        this._mensagem = new Bind(new Mensagem(), new MensagemView($('.mensagemView')), 'texto');
     }
 
     adiciona(event) {
         event.preventDefault();
 
         this._listaNegociacoes.adiciona(this._criaNegociacao());
-
+        this._mensagem.text = 'Negociação inserida com sucesso';
         this._limpaFormulario();
-
-        this.mensagemView.update('Negociação inserida com sucesso');
     }
 
-    _limpaFormulario() {
-        this._inputData.value = '';
-        this._inputQuantidade.value = 1;
-        this._inputValor.value = 0.0;
-
-        this._inputData.focus();
+    apaga() {
+        this._listaNegociacoes.esvazia();
+        this._mensagem.texto = 'Negociações apagadas com sucesso';
     }
 
     _criaNegociacao() {
@@ -52,9 +38,10 @@ class NegociacaoController {
         );
     }
 
-    _apaga() {
-        this._listaNegociacoes.esvazia();
-
-        this.mensagemView.update('Negociações apagadas com sucesso.');
+    _limpaFormulario() {
+        this._inputData.value = '';
+        this._inputQuantidade.value = 1;
+        this._inputValor.value = 0.0;
+        this._inputData.focus();
     }
 }

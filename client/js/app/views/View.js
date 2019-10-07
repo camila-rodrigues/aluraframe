@@ -4,7 +4,7 @@ class View {
         this.element = element;
     }
 
-    template(model) {
+    template() {
         throw new Error("O método da classe View precisa ser implementado pela classe filha.");
     }
 
